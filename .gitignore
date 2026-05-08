@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+.env
+.env.local
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# Local dev tools (not part of the built app)
+/scripts
+# Never commit any actual price-list PDFs — users upload their own; this app
+# does not ship or store list data.
+*.pdf
