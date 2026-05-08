@@ -14,19 +14,26 @@ export function PriceBookGate({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="card p-8 text-[14px] text-stone-500">Loading your price list…</div>
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-[14px] text-neutral-400">
+        Loading your price list…
+      </div>
     );
   }
 
   if (!book) {
     return (
-      <div className="card p-7 space-y-3">
-        <h2 className="text-[18px] font-semibold tracking-tight">No price list loaded</h2>
-        <p className="text-[14px] text-stone-600 leading-relaxed">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-7 space-y-3">
+        <h2 className="text-[18px] font-semibold tracking-tight text-white">
+          No price list loaded
+        </h2>
+        <p className="text-[14px] text-neutral-300 leading-relaxed">
           Upload your diamond price list PDF to start calculating. The file is
           processed entirely on this device — it never leaves your browser.
         </p>
-        <Link className="btn-primary inline-flex" href="/upload">
+        <Link
+          className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-[15px] font-medium text-neutral-950"
+          href="/upload"
+        >
           Upload PDF
         </Link>
       </div>
@@ -36,15 +43,18 @@ export function PriceBookGate({ children }: { children: React.ReactNode }) {
   if (expired) {
     const days = Math.round(PRICEBOOK_TTL_MS / (24 * 60 * 60 * 1000));
     return (
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 space-y-3">
-        <h2 className="text-[17px] font-semibold text-amber-900">
+      <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-6 space-y-3">
+        <h2 className="text-[17px] font-semibold text-amber-100">
           Your price list has expired
         </h2>
-        <p className="text-[13px] text-amber-900/80 leading-relaxed">
+        <p className="text-[13px] text-amber-100/80 leading-relaxed">
           The list you uploaded is more than {days} days old. Please upload your
           updated PDF to continue.
         </p>
-        <Link className="btn-primary inline-flex" href="/upload">
+        <Link
+          className="inline-flex items-center justify-center rounded-full bg-amber-400 px-5 py-3 text-[15px] font-medium text-neutral-950"
+          href="/upload"
+        >
           Upload updated PDF
         </Link>
       </div>
@@ -52,18 +62,4 @@ export function PriceBookGate({ children }: { children: React.ReactNode }) {
   }
 
   return <>{children}</>;
-}
-
-export function PriceBookBanner() {
-  const { book, expired } = useBookStore();
-  if (!book) return null;
-  const ageDays = Math.floor((Date.now() - book.uploadedAt) / (24 * 60 * 60 * 1000));
-  return (
-    <div className="text-[12px] text-stone-400">
-      List loaded
-      {book.reportDate ? ` — ${book.reportDate}` : ""} ·{" "}
-      {ageDays === 0 ? "today" : `${ageDays}d ago`}
-      {expired ? " · expired" : ""}
-    </div>
-  );
 }

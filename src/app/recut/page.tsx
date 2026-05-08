@@ -26,10 +26,10 @@ export default function RecutPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-[24px] font-semibold tracking-tight text-stone-900">
+        <h1 className="text-[24px] font-semibold tracking-tight text-white">
           Recut
         </h1>
-        <p className="text-[13px] text-stone-500">
+        <p className="text-[13px] text-neutral-500">
           Estimate the polished value of a rough or recut.
         </p>
       </div>
@@ -89,14 +89,14 @@ function RecutEditor() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl bg-stone-900 text-white p-6 shadow-card">
-        <div className="text-[12px] uppercase tracking-[0.12em] text-stone-400">
+      <div className="rounded-3xl border border-white/10 bg-neutral-900 text-white p-6">
+        <div className="text-[12px] uppercase tracking-[0.12em] text-neutral-400">
           Polished value
         </div>
         <div className="mt-2 text-[36px] font-semibold tracking-tightest leading-none tabular-nums">
           {ok ? fmt(ok.yourTotal) : "—"}
         </div>
-        <div className="mt-3 text-[13px] text-stone-300">
+        <div className="mt-3 text-[13px] text-neutral-300">
           {polishedCt.toFixed(2)} ct expected polished
           {ok && roughCt > 0 && (
             <> · implied {fmt(ok.yourTotal / roughCt)} / ct of rough</>
@@ -174,7 +174,7 @@ function RecutEditor() {
           }}
         />
         {currency !== "USD" && (
-          <div className="mt-3 rounded-xl bg-stone-50 border border-stone-200/70 p-4 space-y-2">
+          <div className="mt-3 rounded-xl bg-white/5 border border-white/10 p-4 space-y-2">
             <Field label={`1 USD = ${currency}`}>
               <input
                 className="input"
@@ -186,7 +186,7 @@ function RecutEditor() {
                 onChange={(e) => setOverrideRate(e.target.value)}
               />
             </Field>
-            <p className="text-[12px] text-stone-500">
+            <p className="text-[12px] text-neutral-400">
               Live {liveRate.toFixed(4)}
               {bundle ? ` · ${bundle.source}` : ""}
             </p>
@@ -223,7 +223,7 @@ function Section({
 }) {
   return (
     <section>
-      <h3 className="mb-2 text-[13px] font-medium uppercase tracking-[0.08em] text-stone-500">
+      <h3 className="mb-2 text-[13px] font-medium uppercase tracking-[0.08em] text-neutral-500">
         {title}
       </h3>
       {children}

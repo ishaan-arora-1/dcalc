@@ -46,10 +46,10 @@ export default function LotPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-[24px] font-semibold tracking-tight text-stone-900">
+        <h1 className="text-[24px] font-semibold tracking-tight text-white">
           Lot
         </h1>
-        <p className="text-[13px] text-stone-500">
+        <p className="text-[13px] text-neutral-500">
           Build a parcel. Each stone prices independently.
         </p>
       </div>
@@ -167,8 +167,8 @@ function LotEditor() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-3xl bg-stone-900 text-white p-6 shadow-card">
-        <div className="text-[12px] uppercase tracking-[0.12em] text-stone-400">
+      <div className="rounded-3xl border border-white/10 bg-neutral-900 text-white p-6">
+        <div className="text-[12px] uppercase tracking-[0.12em] text-neutral-400">
           Lot value
         </div>
         <div className="mt-2 text-[36px] font-semibold tracking-tightest leading-none tabular-nums">
@@ -176,7 +176,7 @@ function LotEditor() {
         </div>
         <div className="mt-4 grid grid-cols-3 gap-3 text-[12px]">
           <div>
-            <div className="text-stone-400 uppercase tracking-wider text-[10px]">
+            <div className="text-neutral-400 uppercase tracking-wider text-[10px]">
               Stones
             </div>
             <div className="mt-1 text-[16px] font-medium tabular-nums">
@@ -184,7 +184,7 @@ function LotEditor() {
             </div>
           </div>
           <div>
-            <div className="text-stone-400 uppercase tracking-wider text-[10px]">
+            <div className="text-neutral-400 uppercase tracking-wider text-[10px]">
               Weight
             </div>
             <div className="mt-1 text-[16px] font-medium tabular-nums">
@@ -192,7 +192,7 @@ function LotEditor() {
             </div>
           </div>
           <div>
-            <div className="text-stone-400 uppercase tracking-wider text-[10px]">
+            <div className="text-neutral-400 uppercase tracking-wider text-[10px]">
               Avg / ct
             </div>
             <div className="mt-1 text-[16px] font-medium tabular-nums">
@@ -226,7 +226,7 @@ function LotEditor() {
               value={overrideRate}
               onChange={(e) => setOverrideRate(e.target.value)}
             />
-            <p className="text-[12px] text-stone-400">
+            <p className="text-[12px] text-neutral-400">
               Live {liveRate.toFixed(4)}
               {bundle ? ` · ${bundle.source}` : ""}
             </p>
@@ -289,22 +289,22 @@ function LotCard({
         onClick={onToggle}
       >
         <div className="min-w-0">
-          <div className="text-[11px] font-medium uppercase tracking-wider text-stone-400">
+          <div className="text-[11px] font-medium uppercase tracking-wider text-neutral-400">
             Stone {index}
           </div>
-          <div className="mt-0.5 text-[15px] font-medium text-stone-900 truncate">
+          <div className="mt-0.5 text-[15px] font-medium text-white truncate">
             {row.shape} · {row.carat.toFixed(2)} ct · {row.color}/{row.clarity}{" "}
-            <span className="text-stone-400">
+            <span className="text-neutral-400">
               {row.pct >= 0 ? `+${row.pct}` : row.pct}% · ×{row.quantity}
             </span>
           </div>
         </div>
         <div className="text-right shrink-0 ml-3">
-          <div className="text-[15px] font-semibold tabular-nums text-stone-900">
+          <div className="text-[15px] font-semibold tabular-nums text-white">
             {ok ? fmt(ok.yourTotal * row.quantity) : err ? "—" : "—"}
           </div>
           {err && (
-            <div className="text-[11px] text-rose-700 max-w-[180px] truncate">
+            <div className="text-[11px] text-rose-400 max-w-[180px] truncate">
               {err}
             </div>
           )}
@@ -312,7 +312,7 @@ function LotCard({
       </button>
 
       {row.expanded && (
-        <div className="border-t border-stone-100 px-5 py-4 space-y-4">
+        <div className="border-t border-white/10 px-5 py-4 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <div className="label mb-1">Shape</div>
@@ -391,7 +391,7 @@ function LotCard({
           </div>
 
           {ok && (
-            <div className="rounded-xl bg-stone-50 p-3 text-[13px] text-stone-700 space-y-1.5">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-[13px] text-neutral-300 space-y-1.5">
               <Line k="List / ct" v={fmt(ok.listPpc)} />
               <Line k="Your / ct" v={fmt(ok.yourPpc)} />
               <Line k="Your total" v={fmt(ok.yourTotal)} />
@@ -405,7 +405,7 @@ function LotCard({
 
           <button
             type="button"
-            className="text-[13px] text-rose-700 hover:underline"
+            className="text-[13px] text-rose-400 hover:underline"
             onClick={onRemove}
           >
             Remove stone
@@ -419,8 +419,8 @@ function LotCard({
 function Line({ k, v, strong }: { k: string; v: string; strong?: boolean }) {
   return (
     <div className="flex justify-between">
-      <span className="text-stone-500">{k}</span>
-      <span className={`tabular-nums ${strong ? "font-semibold text-stone-900" : ""}`}>
+      <span className="text-neutral-500">{k}</span>
+      <span className={`tabular-nums ${strong ? "font-semibold text-white" : ""}`}>
         {v}
       </span>
     </div>

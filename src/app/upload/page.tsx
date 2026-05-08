@@ -45,19 +45,19 @@ export default function UploadPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h1 className="text-[26px] font-semibold tracking-tight text-stone-900">
+        <h1 className="text-[26px] font-semibold tracking-tight text-white">
           Upload your price list
         </h1>
-        <p className="text-[14px] text-stone-600 leading-relaxed">
+        <p className="text-[14px] text-neutral-400 leading-relaxed">
           Drop in your weekly PDF. The file is parsed entirely in your browser —
           it never leaves your device.
         </p>
       </div>
 
-      <label className="flex items-start gap-3 rounded-2xl border border-stone-200 bg-white p-4 text-[13px] text-stone-700 cursor-pointer">
+      <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-[13px] text-neutral-300 cursor-pointer">
         <input
           type="checkbox"
-          className="mt-0.5 h-4 w-4 accent-stone-900"
+          className="mt-0.5 h-4 w-4 accent-white rounded"
           checked={confirmed}
           onChange={(e) => setConfirmed(e.target.checked)}
         />
@@ -69,7 +69,7 @@ export default function UploadPage() {
       </label>
 
       <div
-        className="rounded-2xl border-2 border-dashed border-stone-300 bg-white p-10 text-center"
+        className="rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.03] p-10 text-center"
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
@@ -77,7 +77,7 @@ export default function UploadPage() {
           if (f) void onFile(f);
         }}
       >
-        <div className="text-[14px] text-stone-500">
+        <div className="text-[14px] text-neutral-500">
           {busy ? "Parsing your price list…" : "Drag & drop, or pick a file"}
         </div>
         <label className="btn-primary mt-4 inline-flex cursor-pointer">
@@ -96,20 +96,20 @@ export default function UploadPage() {
       </div>
 
       {err && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-[13px] text-rose-900">
+        <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-3 text-[13px] text-rose-200">
           {err}
         </div>
       )}
 
       {warns.length > 0 && (
-        <ul className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] text-amber-900 space-y-1">
+        <ul className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-[12px] text-amber-100 space-y-1">
           {warns.map((w, i) => (
             <li key={i}>· {w}</li>
           ))}
         </ul>
       )}
 
-      <div className="rounded-2xl bg-stone-100/70 p-4 text-[12px] text-stone-500 leading-relaxed">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-[12px] text-neutral-500 leading-relaxed">
         We only retain the extracted numerical price grid in your browser&apos;s
         local storage. The PDF file itself is not stored. Stored data expires
         after 7 days.

@@ -68,14 +68,14 @@ export default function AccountPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-[24px] font-semibold tracking-tight text-stone-900">
+      <h1 className="text-[24px] font-semibold tracking-tight text-white">
         Account
       </h1>
 
       {!state.email ? (
         <div className="card p-6 space-y-3">
-          <h2 className="text-[16px] font-semibold">Start your 7-day free trial</h2>
-          <p className="text-[13px] text-stone-500">
+          <h2 className="text-[16px] font-semibold text-white">Start your 7-day free trial</h2>
+          <p className="text-[13px] text-neutral-500">
             Full access. No credit card required.
           </p>
           <input
@@ -94,27 +94,27 @@ export default function AccountPage() {
         <div className="card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-[12px] text-stone-500">Signed in</div>
-              <div className="text-[15px] font-medium">{state.email}</div>
+              <div className="text-[12px] text-neutral-500">Signed in</div>
+              <div className="text-[15px] font-medium text-white">{state.email}</div>
             </div>
             <button className="btn-ghost" onClick={signOut}>
               Sign out
             </button>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-stone-50 p-3">
-              <div className="text-[11px] uppercase tracking-wider text-stone-500">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="text-[11px] uppercase tracking-wider text-neutral-400">
                 Plan
               </div>
-              <div className="mt-1 text-[16px] font-semibold capitalize">
+              <div className="mt-1 text-[16px] font-semibold capitalize text-white">
                 {state.plan ?? "—"}
               </div>
             </div>
-            <div className="rounded-xl bg-stone-50 p-3">
-              <div className="text-[11px] uppercase tracking-wider text-stone-500">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="text-[11px] uppercase tracking-wider text-neutral-400">
                 Trial days left
               </div>
-              <div className="mt-1 text-[16px] font-semibold">
+              <div className="mt-1 text-[16px] font-semibold text-white">
                 {trialDaysLeft ?? "—"}
               </div>
             </div>
@@ -131,8 +131,8 @@ export default function AccountPage() {
       )}
 
       <div className="card p-6 space-y-3">
-        <h2 className="text-[15px] font-semibold">Price list</h2>
-        <p className="text-[13px] text-stone-500">
+        <h2 className="text-[15px] font-semibold text-white">Price list</h2>
+        <p className="text-[13px] text-neutral-500">
           Manage the PDF stored on this device.
         </p>
         <div className="grid grid-cols-2 gap-2">
@@ -145,7 +145,7 @@ export default function AccountPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-stone-100/70 p-4 text-[12px] text-stone-500 leading-relaxed">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-[12px] text-neutral-500 leading-relaxed">
         Facet is not affiliated with any price list provider. We do not store,
         distribute, or process your price list on our servers. All PDF
         processing occurs locally on your device.

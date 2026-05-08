@@ -4,12 +4,12 @@ export default function Home() {
   return (
     <div className="space-y-10 pt-4">
       <div className="space-y-4">
-        <h1 className="text-[34px] font-semibold tracking-tightest leading-[1.05] text-stone-900">
+        <h1 className="text-[34px] font-semibold tracking-tightest leading-[1.05] text-white">
           Diamond pricing,
           <br />
           without the lookup.
         </h1>
-        <p className="text-[15px] leading-relaxed text-stone-600">
+        <p className="text-[15px] leading-relaxed text-neutral-400">
           Upload your weekly price list PDF. Enter a stone&apos;s specs. Get list
           price, your price, and the lot total instantly. Built for people who
           quote dozens of stones a day.
@@ -25,10 +25,10 @@ export default function Home() {
       </div>
 
       <div className="card p-6">
-        <h3 className="text-[13px] font-medium uppercase tracking-[0.08em] text-stone-500">
+        <h3 className="text-[13px] font-medium uppercase tracking-[0.08em] text-neutral-500">
           How it works
         </h3>
-        <ol className="mt-3 space-y-3 text-[14px] text-stone-700">
+        <ol className="mt-3 space-y-3 text-[14px] text-neutral-300">
           <Step n={1}>Upload your price list PDF.</Step>
           <Step n={2}>It&apos;s parsed in your browser. Nothing uploads.</Step>
           <Step n={3}>Enter shape, carat, color, clarity, % off list.</Step>
@@ -36,7 +36,7 @@ export default function Home() {
         </ol>
       </div>
 
-      <ul className="space-y-2 text-[13px] text-stone-500">
+      <ul className="space-y-2 text-[13px] text-neutral-500">
         <li>· Your PDF stays on your device.</li>
         <li>· Round and pear grids parsed automatically.</li>
         <li>· Lot, recut, history, exports.</li>
@@ -49,7 +49,7 @@ export default function Home() {
 function Step({ n, children }: { n: number; children: React.ReactNode }) {
   return (
     <li className="flex gap-3">
-      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-100 text-[12px] font-semibold text-stone-700">
+      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/10 text-[12px] font-semibold text-neutral-200">
         {n}
       </span>
       <span>{children}</span>

@@ -54,6 +54,20 @@ export const SHAPES: Shape[] = [
   "Heart",
 ];
 
+/** Two-letter codes shown in the scroll-wheel UI (trade shorthand). */
+export const SHAPE_CODE: Record<Shape, string> = {
+  Round: "BR",
+  Pear: "PS",
+  Oval: "OV",
+  Emerald: "EM",
+  Princess: "PR",
+  Cushion: "CU",
+  Marquise: "MQ",
+  Radiant: "RAD",
+  Asscher: "AC",
+  Heart: "HT",
+};
+
 export interface CaratBracket {
   /** inclusive low */
   lo: number;

@@ -72,10 +72,10 @@ export default function HistoryPage() {
     <div className="space-y-4">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-[24px] font-semibold tracking-tight text-stone-900">
+          <h1 className="text-[24px] font-semibold tracking-tight text-white">
             History
           </h1>
-          <p className="text-[13px] text-stone-500">
+          <p className="text-[13px] text-neutral-500">
             Saved on this device only.
           </p>
         </div>
@@ -87,11 +87,11 @@ export default function HistoryPage() {
       </div>
 
       {loading && (
-        <div className="card p-6 text-[14px] text-stone-500">Loading…</div>
+        <div className="card p-6 text-[14px] text-neutral-500">Loading…</div>
       )}
       {!loading && items.length === 0 && (
         <div className="card p-8 text-center">
-          <p className="text-[14px] text-stone-500">
+          <p className="text-[14px] text-neutral-500">
             No saved calculations yet.
           </p>
         </div>
@@ -127,23 +127,23 @@ function HistoryCard({
     <div className="card p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-[12px] text-stone-400">
+          <div className="text-[12px] text-neutral-400">
             {new Date(item.createdAt).toLocaleString()}
           </div>
-          <div className="mt-1 text-[15px] font-medium truncate">
+          <div className="mt-1 text-[15px] font-medium text-white truncate">
             {item.inputs.shape} · {item.inputs.carat.toFixed(2)} ct ·{" "}
             {item.inputs.color}/{item.inputs.clarity}
           </div>
-          <div className="text-[13px] text-stone-500">
+          <div className="text-[13px] text-neutral-500">
             {item.inputs.pct >= 0 ? `+${item.inputs.pct}` : item.inputs.pct}% ·
             ×{item.inputs.quantity}
           </div>
         </div>
         <div className="text-right shrink-0">
-          <div className="text-[18px] font-semibold tabular-nums">
+          <div className="text-[18px] font-semibold tabular-nums text-white">
             {fmt(total)}
           </div>
-          <div className="text-[11px] text-stone-400">{c}</div>
+          <div className="text-[11px] text-neutral-400">{c}</div>
         </div>
       </div>
 
@@ -155,7 +155,7 @@ function HistoryCard({
       <div className="mt-3 flex justify-end">
         <button
           type="button"
-          className="text-[12px] text-stone-500 hover:text-rose-700"
+          className="text-[12px] text-neutral-500 hover:text-rose-400"
           onClick={onDelete}
         >
           Delete
@@ -167,9 +167,9 @@ function HistoryCard({
 
 function Stat({ k, v }: { k: string; v: string }) {
   return (
-    <div className="rounded-xl bg-stone-50 px-3 py-2">
-      <div className="text-[11px] uppercase tracking-wider text-stone-500">{k}</div>
-      <div className="mt-0.5 font-medium tabular-nums">{v}</div>
+    <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+      <div className="text-[11px] uppercase tracking-wider text-neutral-400">{k}</div>
+      <div className="mt-0.5 font-medium tabular-nums text-white">{v}</div>
     </div>
   );
 }

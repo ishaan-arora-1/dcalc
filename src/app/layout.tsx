@@ -13,24 +13,24 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#fafaf9",
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col">
-        <header className="sticky top-0 z-20 border-b border-stone-200/70 bg-white/80 backdrop-blur-md">
+      <body className="min-h-screen flex flex-col bg-neutral-950 text-neutral-100 antialiased">
+        <header className="sticky top-0 z-20 border-b border-white/10 bg-neutral-950/90 backdrop-blur-md">
           <div className="mx-auto max-w-xl px-5 h-14 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <span className="inline-block h-2 w-2 rounded-full bg-stone-900" />
-              <span className="font-semibold tracking-tight text-stone-900 text-[15px]">
+              <span className="inline-block h-2 w-2 rounded-full bg-white" />
+              <span className="font-semibold tracking-tight text-white text-[15px]">
                 Facet
               </span>
             </Link>
             <Link
               href="/upload"
-              className="text-[13px] font-medium text-stone-600 hover:text-stone-900"
+              className="text-[13px] font-medium text-neutral-400 hover:text-white"
             >
               Price list
             </Link>
@@ -42,11 +42,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
 
         <TabBar />
-
-        <footer className="hidden">
-          {/* Disclaimer is rendered inline on the upload screen and account page;
-              we keep it out of the chrome to maintain whitespace on small screens. */}
-        </footer>
       </body>
     </html>
   );

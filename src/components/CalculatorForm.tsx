@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   CLARITIES,
   COLORS,
+  SHAPE_CODE,
   SHAPES,
   type Clarity,
   type Color,
@@ -21,7 +22,13 @@ import {
   type RateBundle,
 } from "@/lib/currency";
 import { appendHistory } from "@/lib/storage/db";
-import { Chips } from "./Chips";
+import {
+  ScrollWheelColumn,
+  CaratWheelSlot,
+  buildDiscountWheelOptions,
+  nearestWheelPct,
+  type WheelOption,
+} from "@/components/ScrollWheelColumn";
 
 export interface CalculatorState {
   shape: Shape;
@@ -29,17 +36,15 @@ export interface CalculatorState {
   color: Color;
   clarity: Clarity;
   pct: string;
-  quantity: string;
   currency: Currency;
 }
 
 const DEFAULT_STATE: CalculatorState = {
   shape: "Round",
-  carat: "1.00",
+  carat: "",
   color: "G",
   clarity: "VS1",
-  pct: "-30",
-  quantity: "1",
+  pct: "-30.0",
   currency: "USD",
 };
 
@@ -49,15 +54,19 @@ interface Props {
 
 export function CalculatorForm({ initial }: Props) {
   const book = useBookStore((s) => s.book);
-  const [state, setState] = useState<CalculatorState>({
+  const discOpts = useMemo(() => buildDiscountWheelOptions(), []);
+  const [state, setState] = useState<CalculatorState>(() => ({
     ...DEFAULT_STATE,
     ...initial,
-  });
+    pct: nearestWheelPct(
+      (initial?.pct ?? DEFAULT_STATE.pct) as string,
+      discOpts,
+    ),
+  }));
   const [bundle, setBundle] = useState<RateBundle | null>(null);
   const [overrideRate, setOverrideRate] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     void fetchRates().then(setBundle);
@@ -74,7 +83,20 @@ export function CalculatorForm({ initial }: Props) {
 
   const carat = parseFloat(state.carat) || 0;
   const pct = parseFloat(state.pct) || 0;
-  const qty = Math.max(1, parseInt(state.quantity || "1", 10) || 1);
+  const qty = 1;
+
+  const shapeOptions: WheelOption[] = useMemo(
+    () => SHAPES.map((s) => ({ value: s, label: SHAPE_CODE[s] })),
+    [],
+  );
+  const colorOptions: WheelOption[] = useMemo(
+    () => COLORS.map((c) => ({ value: c, label: c })),
+    [],
+  );
+  const clarityOptions: WheelOption[] = useMemo(
+    () => CLARITIES.map((c) => ({ value: c, label: c })),
+    [],
+  );
 
   const result = useMemo(() => {
     if (!book) return null;
@@ -124,162 +146,193 @@ export function CalculatorForm({ initial }: Props) {
     setTimeout(() => setSavedAt(null), 2200);
   }
 
-  function fmt(v: number) {
-    return fmtMoney(convertFromUSD(v, fxRate), state.currency);
+  function fmtLocal(usd: number) {
+    return fmtMoney(convertFromUSD(usd, fxRate), state.currency);
+  }
+  function fmtUsd(usd: number) {
+    return fmtMoney(usd, "USD");
   }
 
   const ok = result && !("error" in result) ? (result as CalcOutputs) : null;
   const err = result && "error" in result ? result.error : null;
 
-  return (
-    <div className="space-y-6">
-      <Hero
-        title="Your total"
-        big={ok ? fmt(ok.lotTotal ?? ok.yourTotal) : "—"}
-        subtitle={
-          ok
-            ? `${state.shape} · ${carat.toFixed(2)} ct · ${state.color}/${state.clarity} · ${pct >= 0 ? `+${pct}` : pct}%`
-            : "Set the specs below to calculate."
-        }
-        error={err}
-      />
+  const pctWheelVal = nearestWheelPct(state.pct, discOpts);
 
-      {ok && (
-        <div className="card p-5">
-          <div className="stat-row">
-            <span className="stat-label">List / ct</span>
-            <span className="stat-value">{fmt(ok.listPpc)}</span>
-          </div>
-          <div className="stat-row">
-            <span className="stat-label">List total</span>
-            <span className="stat-value">{fmt(ok.listTotal)}</span>
-          </div>
-          <div className="stat-row">
-            <span className="stat-label">Your / ct</span>
-            <span className="stat-value">{fmt(ok.yourPpc)}</span>
-          </div>
-          <div className="stat-row">
-            <span className="stat-label">Your total</span>
-            <span className="stat-value">{fmt(ok.yourTotal)}</span>
-          </div>
-          {ok.lotTotal != null && (
-            <div className="stat-row">
-              <span className="stat-label">Lot total · ×{qty}</span>
-              <span className="stat-value">{fmt(ok.lotTotal)}</span>
-            </div>
-          )}
+  return (
+    <div className="space-y-5 text-neutral-100">
+      {/* Carat + scroll wheels — same visual family */}
+      <div className="rounded-2xl border border-white/10 bg-neutral-950/80 p-3 shadow-inner">
+        <div className="flex gap-1 sm:gap-2">
+          <CaratWheelSlot
+            value={state.carat}
+            onChange={(v) => set("carat", v)}
+            ariaLabel="Stone weight in carats"
+          />
+          <ScrollWheelColumn
+            ariaLabel="Shape"
+            options={shapeOptions}
+            value={state.shape}
+            onChange={(v) => set("shape", v as Shape)}
+          />
+          <ScrollWheelColumn
+            ariaLabel="Color"
+            options={colorOptions}
+            value={state.color}
+            onChange={(v) => set("color", v as Color)}
+          />
+          <ScrollWheelColumn
+            ariaLabel="Clarity"
+            options={clarityOptions}
+            value={state.clarity}
+            onChange={(v) => set("clarity", v as Clarity)}
+          />
+          <ScrollWheelColumn
+            ariaLabel="Percent off or on list"
+            tone="discount"
+            options={discOpts}
+            value={pctWheelVal}
+            onChange={(v) => set("pct", v)}
+          />
         </div>
+        {state.shape !== "Round" && state.shape !== "Pear" && (
+          <p className="mt-2 px-1 text-center text-[11px] text-neutral-500">
+            {state.shape} ({SHAPE_CODE[state.shape]}) uses the pear grid per
+            industry convention.
+          </p>
+        )}
+      </div>
+
+      {/* 2×2 price grid — non-USD: USD first, local currency second; both same weight */}
+      <div className="grid grid-cols-2 gap-2">
+        <PriceCell
+          label="Ref. price / ct."
+          primary={ok ? fmtUsd(ok.listPpc) : "—"}
+          secondary={ok && state.currency !== "USD" ? fmtLocal(ok.listPpc) : undefined}
+          dualLine={state.currency !== "USD"}
+        />
+        <div className="flex flex-col rounded-xl border border-rose-500/40 bg-rose-500/15 px-3 py-2.5">
+          <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-rose-200/90">
+            Disc.
+          </span>
+          <span className="mt-1 text-[18px] font-bold tabular-nums text-rose-300">
+            {pct >= 0 ? "+" : ""}
+            {pct.toFixed(2)}%
+          </span>
+        </div>
+        <PriceCell
+          label="Price / ct."
+          primary={ok ? fmtUsd(ok.yourPpc) : "—"}
+          secondary={ok && state.currency !== "USD" ? fmtLocal(ok.yourPpc) : undefined}
+          dualLine={state.currency !== "USD"}
+        />
+        <PriceCell
+          label="Total price"
+          primary={ok ? fmtUsd(ok.lotTotal ?? ok.yourTotal) : "—"}
+          secondary={
+            ok && state.currency !== "USD"
+              ? fmtLocal(ok.lotTotal ?? ok.yourTotal)
+              : undefined
+          }
+          dualLine={state.currency !== "USD"}
+        />
+      </div>
+
+      {err && (
+        <p className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-[13px] text-rose-200">
+          {err}
+        </p>
       )}
 
-      <Section title="Shape & weight">
-        <div className="space-y-3">
-          <div>
-            <Label>Shape</Label>
-            <select
-              className="select"
-              value={state.shape}
-              onChange={(e) => set("shape", e.target.value as Shape)}
+      {/* Currency + exchange rate (rate always visible when not USD) */}
+      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+        <span className="text-[12px] font-medium uppercase tracking-[0.1em] text-neutral-300">
+          Currency
+        </span>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {CURRENCIES.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => {
+                set("currency", c);
+                setOverrideRate("");
+              }}
+              className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition ${
+                state.currency === c
+                  ? "bg-white text-neutral-950"
+                  : "bg-white/10 text-neutral-300 hover:bg-white/15"
+              }`}
             >
-              {SHAPES.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
-            {state.shape !== "Round" && state.shape !== "Pear" && (
-              <p className="mt-2 text-[12px] text-stone-500">
-                {state.shape} uses the pear grid per industry convention.
-              </p>
-            )}
-          </div>
-          <div>
-            <Label>Carat</Label>
-            <input
-              className="input input-lg"
-              type="number"
-              inputMode="decimal"
-              step="0.01"
-              min={0}
-              value={state.carat}
-              onChange={(e) => set("carat", e.target.value)}
-            />
-          </div>
+              {c}
+            </button>
+          ))}
         </div>
-      </Section>
-
-      <Section title="Color">
-        <Chips
-          ariaLabel="Color"
-          options={COLORS}
-          value={state.color}
-          onChange={(v) => set("color", v)}
-        />
-      </Section>
-
-      <Section title="Clarity">
-        <Chips
-          ariaLabel="Clarity"
-          options={CLARITIES}
-          value={state.clarity}
-          onChange={(v) => set("clarity", v)}
-        />
-      </Section>
-
-      <Section title="Pricing">
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label>% off / on list</Label>
-            <input
-              className="input"
-              type="number"
-              inputMode="decimal"
-              step="0.5"
-              value={state.pct}
-              onChange={(e) => set("pct", e.target.value)}
-            />
-          </div>
-          <div>
-            <Label>Quantity</Label>
-            <input
-              className="input"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              step={1}
-              value={state.quantity}
-              onChange={(e) => set("quantity", e.target.value)}
-            />
-          </div>
-        </div>
-      </Section>
-
-      <Section
-        title="Currency"
-        action={
-          <button
-            type="button"
-            className="text-[12px] text-stone-500 hover:text-stone-900"
-            onClick={() => setShowSettings((s) => !s)}
-          >
-            {showSettings ? "Hide" : "Set rate"}
-          </button>
-        }
-      >
-        <Chips
-          ariaLabel="Currency"
-          options={CURRENCIES}
-          value={state.currency}
-          onChange={(v) => {
-            set("currency", v);
-            setOverrideRate("");
-            if (v !== "USD") setShowSettings(true);
-          }}
-        />
-
-        {state.currency !== "USD" && (showSettings || overrideRate) && (
-          <div className="mt-4 rounded-xl bg-stone-50 border border-stone-200/70 p-4 space-y-3">
+        {state.currency !== "USD" && (
+          <div className="mt-4 space-y-3 border-t border-white/15 pt-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-neutral-400">
+                  Exchange rate
+                </p>
+                <p className="mt-1.5 break-words text-[22px] font-semibold tabular-nums tracking-tight text-white">
+                  1 USD = {fxRate.toFixed(4)}{" "}
+                  <span className="text-[17px] font-semibold text-neutral-100">
+                    {state.currency}
+                  </span>
+                </p>
+                <p className="mt-3 text-[14px] leading-snug text-neutral-100">
+                  <span className="font-semibold text-white">Rate source: </span>
+                  {!bundle ? (
+                    <span className="text-neutral-300">Loading…</span>
+                  ) : bundle.source.startsWith("fallback") ? (
+                    <span className="text-amber-200">
+                      Offline estimate — refresh when online for a live rate
+                    </span>
+                  ) : bundle.sourceUrl ? (
+                    <a
+                      href={bundle.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="break-all text-sky-300 underline decoration-sky-400/50 underline-offset-2 hover:text-sky-200"
+                    >
+                      {hostnameFromUrl(bundle.sourceUrl)}
+                    </a>
+                  ) : (
+                    <span className="text-white">{bundle.source}</span>
+                  )}
+                </p>
+                {overrideRate &&
+                  Number.isFinite(parseFloat(overrideRate)) &&
+                  parseFloat(overrideRate) > 0 && (
+                    <p className="mt-2 text-[13px] text-sky-200/95">
+                      Custom rate applied. Live quote:{" "}
+                      {liveRate.toFixed(4)} {state.currency}
+                      {bundle &&
+                        !bundle.source.startsWith("fallback") &&
+                        bundle.sourceUrl && (
+                          <>
+                            {" "}
+                            (via {hostnameFromUrl(bundle.sourceUrl)})
+                          </>
+                        )}
+                    </p>
+                  )}
+              </div>
+              <button
+                type="button"
+                className="shrink-0 rounded-full bg-white/15 px-4 py-2 text-[13px] font-semibold text-white hover:bg-white/25 active:scale-[0.98] disabled:opacity-40"
+                onClick={refreshRates}
+                disabled={refreshing}
+              >
+                {refreshing ? "…" : "Refresh"}
+              </button>
+            </div>
             <div>
-              <Label>1 USD = {state.currency}</Label>
+              <label className="text-[11px] font-medium uppercase tracking-[0.1em] text-neutral-400">
+                Override (optional)
+              </label>
               <input
-                className="input"
+                className="mt-1.5 w-full rounded-xl border border-white/25 bg-black/50 px-3 py-3 text-[16px] font-semibold tabular-nums text-white placeholder:text-neutral-500 focus:border-sky-400/70 focus:outline-none"
                 type="number"
                 inputMode="decimal"
                 step="0.0001"
@@ -288,43 +341,20 @@ export function CalculatorForm({ initial }: Props) {
                 onChange={(e) => setOverrideRate(e.target.value)}
               />
             </div>
-            <div className="flex items-center justify-between text-[12px] text-stone-500">
-              <span>
-                Live {liveRate.toFixed(4)}
-                {bundle ? ` · ${bundle.source}` : ""}
-              </span>
-              <button
-                type="button"
-                className="font-medium text-stone-900 hover:underline"
-                onClick={refreshRates}
-                disabled={refreshing}
-              >
-                {refreshing ? "Refreshing…" : "Refresh"}
-              </button>
-            </div>
-            {overrideRate && (
-              <p className="text-[12px] text-stone-700">
-                Using rate <strong className="font-semibold">{fxRate.toFixed(4)}</strong>{" "}
-                for this calculation.
-              </p>
-            )}
           </div>
         )}
-      </Section>
+      </div>
 
       {tradeNotes.length > 0 && (
-        <div className="rounded-xl bg-amber-50/80 border border-amber-200/70 p-4 text-[13px] text-amber-900 space-y-1.5">
-          <div className="text-[11px] font-medium uppercase tracking-wider text-amber-700">
-            Heads up
-          </div>
+        <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 p-3 text-[12px] text-amber-100/90 space-y-1">
           {tradeNotes.map((n, i) => (
-            <p key={i}>{n}</p>
+            <p key={i}>· {n}</p>
           ))}
         </div>
       )}
 
       {ok && (
-        <p className="text-center text-[12px] text-stone-400">
+        <p className="text-center text-[11px] text-neutral-500">
           {ok.resolvedShape} · bracket {ok.bracketId} · row {ok.rowKey}
           {state.currency !== "USD" && (
             <> · 1 USD = {fxRate.toFixed(4)} {state.currency}</>
@@ -332,68 +362,56 @@ export function CalculatorForm({ initial }: Props) {
         </p>
       )}
 
-      <div className="sticky bottom-20 z-10 -mx-5 px-5 pt-3 pb-2 bg-gradient-to-t from-stone-50 via-stone-50/95 to-transparent">
-        <button
-          type="button"
-          className="btn-primary w-full text-[16px] py-3.5"
-          onClick={onSave}
-          disabled={!ok}
-        >
-          {savedAt ? "Saved ✓" : "Save calculation"}
-        </button>
-      </div>
+      <button
+        type="button"
+        className="w-full rounded-full bg-sky-500 py-3.5 text-[16px] font-semibold text-white shadow-lg shadow-sky-500/25 active:scale-[0.98] disabled:opacity-40"
+        onClick={onSave}
+        disabled={!ok}
+      >
+        {savedAt ? "Saved ✓" : "Save calculation"}
+      </button>
     </div>
   );
 }
 
-function Section({
-  title,
-  action,
-  children,
-}: {
-  title: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <section>
-      <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-[13px] font-medium uppercase tracking-[0.08em] text-stone-500">
-          {title}
-        </h3>
-        {action}
-      </div>
-      {children}
-    </section>
-  );
+function hostnameFromUrl(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
 }
 
-function Label({ children }: { children: React.ReactNode }) {
-  return <span className="label mb-1.5 block">{children}</span>;
-}
-
-function Hero({
-  title,
-  big,
-  subtitle,
-  error,
+function PriceCell({
+  label,
+  primary,
+  secondary,
+  dualLine = false,
 }: {
-  title: string;
-  big: string;
-  subtitle: string;
-  error: string | null;
+  label: string;
+  primary: string;
+  secondary?: string;
+  /** When true, secondary is as prominent as primary (for USD + local pairs). */
+  dualLine?: boolean;
 }) {
   return (
-    <div className="rounded-3xl bg-stone-900 text-white px-6 py-7 shadow-card">
-      <div className="text-[12px] uppercase tracking-[0.12em] text-stone-400">
-        {title}
-      </div>
-      <div className="mt-2 text-[40px] font-semibold tracking-tightest leading-none tabular-nums break-words">
-        {big}
-      </div>
-      <div className="mt-3 text-[13px] text-stone-300">{subtitle}</div>
-      {error && (
-        <div className="mt-3 text-[13px] text-rose-200">{error}</div>
+    <div className="flex flex-col rounded-xl border border-white/10 bg-neutral-900/50 px-3 py-2.5">
+      <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-neutral-500">
+        {label}
+      </span>
+      <span className="mt-1 text-[15px] font-semibold tabular-nums text-white">
+        {primary}
+      </span>
+      {secondary && (
+        <span
+          className={
+            dualLine
+              ? "mt-1.5 border-t border-white/15 pt-1.5 text-[15px] font-semibold tabular-nums text-white"
+              : "mt-0.5 text-[12px] tabular-nums text-neutral-400"
+          }
+        >
+          {secondary}
+        </span>
       )}
     </div>
   );

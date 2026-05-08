@@ -21,7 +21,10 @@ const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
 export interface RateBundle {
   rates: Record<Currency, number>;
+  /** Short id e.g. API hostname */
   source: string;
+  /** Full URL of the endpoint used (for display / link). */
+  sourceUrl?: string;
   fetchedAt: number;
 }
 
@@ -108,6 +111,7 @@ export async function fetchRates(force = false): Promise<RateBundle> {
       const bundle: RateBundle = {
         rates,
         source: src.name,
+        sourceUrl: src.url,
         fetchedAt: Date.now(),
       };
       writeCache(bundle);

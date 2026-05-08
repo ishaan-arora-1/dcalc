@@ -5,15 +5,15 @@ import { PriceBookGate } from "@/components/PriceBookGate";
 
 export default function CalculatorPage() {
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-[24px] font-semibold tracking-tight text-stone-900">
+    <div className="space-y-5">
+      <header>
+        <h1 className="text-[22px] font-semibold tracking-tight text-white">
           Calculator
         </h1>
-        <p className="text-[13px] text-stone-500">
-          Live result as you type.
+        <p className="text-[12px] text-neutral-500">
+          Scroll to select · live totals
         </p>
-      </div>
+      </header>
       <PriceBookGate>
         <CalculatorForm />
       </PriceBookGate>
