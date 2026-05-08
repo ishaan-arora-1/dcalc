@@ -4,9 +4,9 @@ import Link from "next/link";
 import { TabBar } from "@/components/TabBar";
 
 export const metadata: Metadata = {
-  title: "Facet — diamond price calculator",
+  title: "Diamond Master — diamond price calculator",
   description:
-    "Instant diamond pricing for the trade. Upload your price list PDF and calculate in seconds.",
+    "Diamond Master: instant diamond pricing for the trade. Upload your price list PDF and calculate in seconds.",
 };
 
 export const viewport: Viewport = {
@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/" className="flex items-center gap-2">
               <span className="inline-block h-2 w-2 rounded-full bg-white" />
               <span className="font-semibold tracking-tight text-white text-[15px]">
-                Facet
+                Diamond Master
               </span>
             </Link>
             <Link

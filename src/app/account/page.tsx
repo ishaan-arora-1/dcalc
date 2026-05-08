@@ -146,7 +146,7 @@ export default function AccountPage() {
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-[12px] text-neutral-500 leading-relaxed">
-        Facet is not affiliated with any price list provider. We do not store,
+        Diamond Master is not affiliated with any price list provider. We do not store,
         distribute, or process your price list on our servers. All PDF
         processing occurs locally on your device.
       </div>

@@ -1,4 +1,4 @@
-# Facet — diamond price calculator
+# Diamond Master — diamond price calculator
 
 A web app for diamond trade professionals. Upload your weekly diamond price list
 PDF, enter a stone's specs, get list price, your price, and the lot total —
