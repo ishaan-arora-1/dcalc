@@ -1,0 +1,15 @@
+import type { NextRequest } from "next/server";
+import { updateSession } from "@/lib/supabase/middleware";
+
+export async function middleware(request: NextRequest) {
+  return updateSession(request);
+}
+
+export const config = {
+  matcher: [
+    // Run on every page/route except static assets, image optimisation, and
+    // the favicon. Auth cookies must be refreshed before Server Components
+    // render, including on API routes.
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
+};

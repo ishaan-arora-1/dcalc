@@ -67,11 +67,15 @@ persistent footer states that nothing is uploaded to a server.
 
 ## Auth & billing
 
-Auth and Stripe billing are stubbed (see `/account`). The signup form persists
-to `localStorage` so the rest of the UI works end-to-end. Wire up your auth
-provider (e.g. NextAuth, Clerk) and Stripe checkout when going live; the lock
-gate lives in `src/components/PriceBookGate.tsx` if you want to extend it to
-gate by subscription state.
+- **Auth:** Supabase Auth with Google sign-in.
+- **Database:** Postgres on Supabase, accessed via Prisma.
+- **Billing:** Razorpay Subscriptions — ₹99 / month or ₹799 / year, with a
+  30-day free trial implemented by setting the subscription `start_at` 30
+  days in the future. Trial access is granted by `src/app/(paid)/layout.tsx`,
+  which gates `/calculator`, `/lot`, `/recut`, and `/history`.
+
+See **[SETUP.md](./SETUP.md)** for the credentials/dashboards you need to
+configure before any of this works.
 
 ## Project layout
 
