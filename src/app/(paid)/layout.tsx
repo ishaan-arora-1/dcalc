@@ -1,12 +1,11 @@
-import Link from "next/link";
 import { getAccount } from "@/lib/account";
+import { SignInWithGoogleForCurrentPath } from "@/app/account/AccountActions";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Gates the calculator, lot, recut, and history pages behind:
- *   1. an authenticated Supabase user, and
- *   2. either an in-progress 30-day trial or an active Razorpay subscription.
+ * Gates calculator, upload, lot, recut, and history behind a signed-in user.
+ * Subscription billing is optional — see /account to subscribe after trial.
  */
 export default async function PaidLayout({
   children,
@@ -22,34 +21,12 @@ export default async function PaidLayout({
           Sign in to continue
         </h2>
         <p className="text-[14px] text-neutral-300 leading-relaxed">
-          Diamond Master keeps your history and price-list settings tied to
-          your account. Sign in to start your free 30-day trial.
+          Sign in with Google to upload your price list and use the calculator.
+          Subscription is optional — your account page has plan details.
         </p>
-        <Link
-          className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-[15px] font-medium text-neutral-950"
-          href="/account"
-        >
-          Sign in
-        </Link>
-      </div>
-    );
-  }
-
-  if (!account.hasAccess) {
-    return (
-      <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-6 space-y-3">
-        <h2 className="text-[17px] font-semibold text-amber-100">
-          Your free trial has ended
-        </h2>
-        <p className="text-[13px] text-amber-100/80 leading-relaxed">
-          Subscribe to keep using Diamond Master. ₹99 / month or ₹799 / year.
-        </p>
-        <Link
-          className="inline-flex items-center justify-center rounded-full bg-amber-400 px-5 py-3 text-[15px] font-medium text-neutral-950"
-          href="/account"
-        >
-          Choose a plan
-        </Link>
+        <div className="max-w-sm pt-1">
+          <SignInWithGoogleForCurrentPath />
+        </div>
       </div>
     );
   }

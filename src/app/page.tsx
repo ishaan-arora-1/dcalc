@@ -1,6 +1,62 @@
 import Link from "next/link";
+import { getAccount } from "@/lib/account";
+import { AccountActions } from "@/app/account/AccountActions";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const account = await getAccount();
+
+  if (!account) {
+    return (
+      <div className="space-y-10 pt-4">
+        <div className="space-y-4">
+          <h1 className="text-[34px] font-semibold tracking-tightest leading-[1.05] text-white">
+            Diamond pricing,
+            <br />
+            without the lookup.
+          </h1>
+          <p className="text-[15px] leading-relaxed text-neutral-400">
+            Upload your weekly price list PDF. Enter a stone&apos;s specs. Get
+            list price, your price, and the lot total instantly. Built for people
+            who quote dozens of stones a day.
+          </p>
+          <p className="text-[14px] text-neutral-500 leading-relaxed">
+            Sign in with Google to continue. Subscription is optional.
+          </p>
+          <div className="max-w-sm pt-2">
+            <AccountActions mode="signed-out" oauthNext="/" />
+          </div>
+        </div>
+
+        <div className="card p-6">
+          <h3 className="text-[13px] font-medium uppercase tracking-[0.08em] text-neutral-500">
+            How it works
+          </h3>
+          <ol className="mt-3 space-y-3 text-[14px] text-neutral-300">
+            <Step n={1}>Upload your price list PDF.</Step>
+            <Step n={2}>It&apos;s parsed in your browser. Nothing uploads.</Step>
+            <Step n={3}>Enter shape, carat, color, clarity, % off list.</Step>
+            <Step n={4}>
+              See list price, your price, lot total. Save or export.
+            </Step>
+          </ol>
+        </div>
+
+        <ul className="space-y-2 text-[13px] text-neutral-500">
+          <li>· Your PDF stays on your device.</li>
+          <li>· Round and pear grids parsed automatically.</li>
+          <li>· Lot, recut, history, exports.</li>
+          <li>· Live FX rates with manual override.</li>
+        </ul>
+      </div>
+    );
+  }
+
+  return <HomeSignedIn />;
+}
+
+function HomeSignedIn() {
   return (
     <div className="space-y-10 pt-4">
       <div className="space-y-4">
