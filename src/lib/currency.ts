@@ -16,8 +16,8 @@ const FALLBACK_RATES: Record<Currency, number> = {
   GBP: 0.78,
 };
 
-const CACHE_KEY = "dcalc:fxRates:v2";
-const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const CACHE_KEY = "dcalc:fxRates:v3";
+const CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes — keep the quote fresh against Moneycontrol-style live spot
 
 export interface RateBundle {
   rates: Record<Currency, number>;
@@ -35,24 +35,46 @@ interface SourceDef {
 }
 
 /**
- * Try several free public FX endpoints in order. The first one that responds
- * with a usable INR/USD rate wins. We try open.er-api.com first because it
- * tracks the interbank rate Indian traders are most familiar with on
- * Moneycontrol/Google. Frankfurter (ECB) is the last resort because its
- * USD/INR is often stale by 2-3 INR vs. spot.
+ * Free public FX endpoints, ordered by how closely they track the live
+ * USD/INR spot that traders see on Moneycontrol / Google Finance.
+ *
+ * - floatrates.com refreshes ~every 6 hours and is closest to spot.
+ * - jsdelivr currency-api refreshes once a day but is rock-solid.
+ * - open.er-api.com is daily, widely used, good fallback.
+ * - frankfurter.app (ECB) can be 1-3 INR off spot — last resort.
  */
 const SOURCES: SourceDef[] = [
   {
-    name: "open.er-api.com",
-    url: "https://open.er-api.com/v6/latest/USD",
+    name: "floatrates.com",
+    url: "https://www.floatrates.com/daily/usd.json",
     pick: (d) => {
-      const v = d as { rates?: Record<string, number> };
-      return v?.rates ?? null;
+      const v = d as Record<string, { code: string; rate: number }>;
+      if (!v || typeof v !== "object") return null;
+      const out: Record<string, number> = {};
+      for (const k of Object.keys(v)) {
+        const code = k.toUpperCase();
+        const rate = v[k]?.rate;
+        if (typeof rate === "number") out[code] = rate;
+      }
+      return Object.keys(out).length ? out : null;
     },
   },
   {
-    name: "exchangerate.host",
-    url: "https://api.exchangerate.host/latest?base=USD",
+    name: "currency-api.pages.dev",
+    url: "https://latest.currency-api.pages.dev/v1/currencies/usd.json",
+    pick: (d) => {
+      const v = d as { usd?: Record<string, number> };
+      if (!v?.usd) return null;
+      const out: Record<string, number> = {};
+      for (const [k, val] of Object.entries(v.usd)) {
+        out[k.toUpperCase()] = val;
+      }
+      return out;
+    },
+  },
+  {
+    name: "open.er-api.com",
+    url: "https://open.er-api.com/v6/latest/USD",
     pick: (d) => {
       const v = d as { rates?: Record<string, number> };
       return v?.rates ?? null;
@@ -129,6 +151,17 @@ export async function fetchRates(force = false): Promise<RateBundle> {
 
 export function convertFromUSD(usd: number, rate: number): number {
   return usd * rate;
+}
+
+/** Human label like "just now", "3 min ago", "1 h ago". */
+export function fmtAge(fetchedAt: number, now: number = Date.now()): string {
+  const sec = Math.max(0, Math.round((now - fetchedAt) / 1000));
+  if (sec < 30) return "just now";
+  if (sec < 90) return "1 min ago";
+  if (sec < 3600) return `${Math.round(sec / 60)} min ago`;
+  if (sec < 7200) return "1 h ago";
+  if (sec < 86400) return `${Math.round(sec / 3600)} h ago`;
+  return `${Math.round(sec / 86400)} d ago`;
 }
 
 export function fmtMoney(value: number, currency: Currency): string {

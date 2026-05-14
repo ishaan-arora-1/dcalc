@@ -17,6 +17,7 @@ import {
   CURRENCIES,
   convertFromUSD,
   fetchRates,
+  fmtAge,
   fmtMoney,
   type Currency,
   type RateBundle,
@@ -67,9 +68,15 @@ export function CalculatorForm({ initial }: Props) {
   const [overrideRate, setOverrideRate] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(() => Date.now());
 
   useEffect(() => {
     void fetchRates().then(setBundle);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setNowTick(Date.now()), 30_000);
+    return () => clearInterval(id);
   }, []);
 
   const liveRate = bundle?.rates[state.currency] ?? 1;
@@ -301,6 +308,20 @@ export function CalculatorForm({ initial }: Props) {
                     <span className="text-white">{bundle.source}</span>
                   )}
                 </p>
+                {bundle && !bundle.source.startsWith("fallback") && (
+                  <p className="mt-1 text-[12px] text-neutral-400">
+                    Fetched {fmtAge(bundle.fetchedAt, nowTick)} · compare with{" "}
+                    <a
+                      href="https://www.moneycontrol.com/forex-market/currency/USD-INR"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sky-300 underline decoration-sky-400/40 underline-offset-2 hover:text-sky-200"
+                    >
+                      Moneycontrol
+                    </a>{" "}
+                    and override below if needed
+                  </p>
+                )}
                 {overrideRate &&
                   Number.isFinite(parseFloat(overrideRate)) &&
                   parseFloat(overrideRate) > 0 && (
