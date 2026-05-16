@@ -56,7 +56,14 @@ export function lookup(
 ): LookupResult | { error: string } {
   const resolvedShape = resolveGridShape(req.shape);
   const brackets = shapeBrackets(resolvedShape);
-  const bracket = findBracket(brackets, req.carat);
+  // Trade convention: any stone 5 ct and above uses the 5 ct rap (Round for
+  // round, fancy for fancy). The PDF may have a separate 10 ct table, but
+  // vendors price all 5 ct+ off the 5 ct row.
+  let bracket = findBracket(brackets, req.carat);
+  if (req.carat >= 5) {
+    const fiveCt = brackets.find((b) => b.lo === 5.0 && b.hi === 5.99);
+    if (fiveCt) bracket = fiveCt;
+  }
   if (!bracket) return { error: "Carat weight is outside the price list." };
 
   const grid = findGrid(book, resolvedShape, bracket.id);
