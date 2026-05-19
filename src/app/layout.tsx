@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Image from "next/image";
 import "./globals.css";
 import Link from "next/link";
 import { TabBar } from "@/components/TabBar";
@@ -22,8 +23,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen flex flex-col bg-neutral-950 text-neutral-100 antialiased">
         <header className="sticky top-0 z-20 border-b border-white/10 bg-neutral-950/90 backdrop-blur-md">
           <div className="mx-auto max-w-xl px-5 h-14 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="inline-block h-2 w-2 rounded-full bg-white" />
+            <Link href="/" className="flex items-center gap-1">
+              <Image
+                src="/dcalc logo.png"
+                alt=""
+                width={32}
+                height={32}
+                className="h-8 w-8 shrink-0 object-contain"
+                priority
+              />
               <span className="font-semibold tracking-tight text-white text-[15px]">
                 Diamond Master
               </span>
