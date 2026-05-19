@@ -181,6 +181,16 @@ export function buildDiscountWheelOptions(): WheelOption[] {
 export const PCT_MIN = -100;
 export const PCT_MAX = 20;
 
+/** Clamp and format a typed carat weight; returns fallback if invalid. */
+export function normalizeCaratInput(raw: string, fallback = ""): string {
+  const cleaned = raw.replace(/\s*ct\.?/gi, "").trim();
+  if (!cleaned) return fallback;
+  const t = parseFloat(cleaned);
+  if (!Number.isFinite(t) || t <= 0) return fallback;
+  const rounded = Math.round(t * 1000) / 1000;
+  return String(rounded);
+}
+
 /** Clamp and format a typed discount; returns fallback if not a number. */
 export function normalizePctInput(
   raw: string,

@@ -25,9 +25,9 @@ import {
 import { appendHistory } from "@/lib/storage/db";
 import {
   ScrollWheelColumn,
-  CaratWheelSlot,
   buildDiscountWheelOptions,
   nearestWheelPct,
+  normalizeCaratInput,
   normalizePctInput,
   type WheelOption,
 } from "@/components/ScrollWheelColumn";
@@ -168,14 +168,9 @@ export function CalculatorForm({ initial }: Props) {
 
   return (
     <div className="space-y-5 text-neutral-100">
-      {/* Carat + scroll wheels — same visual family */}
+      {/* Shape, color, clarity, discount scroll wheels */}
       <div className="rounded-2xl border border-white/10 bg-neutral-950/80 p-3 shadow-inner">
         <div className="flex gap-1 sm:gap-2">
-          <CaratWheelSlot
-            value={state.carat}
-            onChange={(v) => set("carat", v)}
-            ariaLabel="Stone weight in carats"
-          />
           <ScrollWheelColumn
             ariaLabel="Shape"
             options={shapeOptions}
@@ -210,56 +205,68 @@ export function CalculatorForm({ initial }: Props) {
         )}
       </div>
 
-      {/* 2×2 price grid — non-USD: USD first, local currency second; both same weight */}
-      <div className="grid grid-cols-2 gap-2">
-        <PriceCell
-          label="Ref. price / ct."
-          primary={ok ? fmtUsd(ok.listPpc) : "—"}
-          secondary={ok && state.currency !== "USD" ? fmtLocal(ok.listPpc) : undefined}
-          dualLine={state.currency !== "USD"}
-        />
-        <div className="flex flex-col rounded-xl border border-rose-500/40 bg-rose-500/15 px-3 py-2.5">
-          <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-rose-200/90">
-            Disc.
-          </span>
-          <div className="mt-1 flex min-w-0 items-baseline gap-0.5">
-            <input
-              type="text"
-              inputMode="decimal"
-              autoComplete="off"
-              aria-label="Discount percent off or on list"
-              value={state.pct}
-              onChange={(e) => set("pct", e.target.value)}
-              onBlur={() =>
-                setState((s) => ({
-                  ...s,
-                  pct: normalizePctInput(s.pct),
-                }))
-              }
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-[18px] font-bold tabular-nums text-rose-300 placeholder:text-rose-300/40 focus:outline-none focus:ring-0"
-              placeholder="-30.0"
-            />
-            <span className="shrink-0 text-[18px] font-bold tabular-nums text-rose-300">
-              %
-            </span>
-          </div>
+      {/* Editable ct + discount, then price grid */}
+      <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-2">
+          <EditableMetricBox
+            label="Ct."
+            tone="carat"
+            ariaLabel="Stone weight in carats"
+            placeholder="1.00"
+            value={state.carat}
+            onChange={(v) => set("carat", v)}
+            onBlur={() =>
+              setState((s) => ({
+                ...s,
+                carat: normalizeCaratInput(s.carat),
+              }))
+            }
+          />
+          <EditableMetricBox
+            label="Disc."
+            tone="discount"
+            ariaLabel="Discount percent off or on list"
+            placeholder="-30.0"
+            suffix="%"
+            value={state.pct}
+            onChange={(v) => set("pct", v)}
+            onBlur={() =>
+              setState((s) => ({
+                ...s,
+                pct: normalizePctInput(s.pct),
+              }))
+            }
+          />
         </div>
-        <PriceCell
-          label="Price / ct."
-          primary={ok ? fmtUsd(ok.yourPpc) : "—"}
-          secondary={ok && state.currency !== "USD" ? fmtLocal(ok.yourPpc) : undefined}
-          dualLine={state.currency !== "USD"}
-        />
-        <PriceCell
-          label="Total price"
-          primary={ok ? fmtUsd(ok.lotTotal ?? ok.yourTotal) : "—"}
-          secondary={
-            ok && state.currency !== "USD"
-              ? fmtLocal(ok.lotTotal ?? ok.yourTotal)
-              : undefined
-          }
-          dualLine={state.currency !== "USD"}
-        />
+        <div className="grid grid-cols-2 gap-2">
+          <PriceCell
+            label="Ref. price / ct."
+            primary={ok ? fmtUsd(ok.listPpc) : "—"}
+            secondary={
+              ok && state.currency !== "USD" ? fmtLocal(ok.listPpc) : undefined
+            }
+            dualLine={state.currency !== "USD"}
+          />
+          <PriceCell
+            label="Price / ct."
+            primary={ok ? fmtUsd(ok.yourPpc) : "—"}
+            secondary={
+              ok && state.currency !== "USD" ? fmtLocal(ok.yourPpc) : undefined
+            }
+            dualLine={state.currency !== "USD"}
+          />
+          <PriceCell
+            label="Total price"
+            primary={ok ? fmtUsd(ok.lotTotal ?? ok.yourTotal) : "—"}
+            secondary={
+              ok && state.currency !== "USD"
+                ? fmtLocal(ok.lotTotal ?? ok.yourTotal)
+                : undefined
+            }
+            dualLine={state.currency !== "USD"}
+            className="col-span-2"
+          />
+        </div>
       </div>
 
       {err && (
@@ -421,20 +428,89 @@ function hostnameFromUrl(url: string): string {
   }
 }
 
+function EditableMetricBox({
+  label,
+  value,
+  onChange,
+  onBlur,
+  ariaLabel,
+  placeholder,
+  tone,
+  suffix,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  onBlur?: () => void;
+  ariaLabel: string;
+  placeholder?: string;
+  tone: "carat" | "discount";
+  suffix?: string;
+}) {
+  const isDiscount = tone === "discount";
+  return (
+    <div
+      className={`flex flex-col rounded-xl border px-3 py-2.5 ${
+        isDiscount
+          ? "border-rose-500/40 bg-rose-500/15"
+          : "border-sky-500/40 bg-sky-500/15"
+      }`}
+    >
+      <span
+        className={`text-[10px] font-medium uppercase tracking-[0.1em] ${
+          isDiscount ? "text-rose-200/90" : "text-sky-200/90"
+        }`}
+      >
+        {label}
+      </span>
+      <div className="mt-1 flex min-w-0 items-baseline gap-0.5">
+        <input
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          aria-label={ariaLabel}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          className={`min-w-0 flex-1 border-0 bg-transparent p-0 text-[18px] font-bold tabular-nums focus:outline-none focus:ring-0 ${
+            isDiscount
+              ? "text-rose-300 placeholder:text-rose-300/40"
+              : "text-sky-300 placeholder:text-sky-300/40"
+          }`}
+        />
+        {suffix && (
+          <span
+            className={`shrink-0 text-[18px] font-bold tabular-nums ${
+              isDiscount ? "text-rose-300" : "text-sky-300"
+            }`}
+          >
+            {suffix}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PriceCell({
   label,
   primary,
   secondary,
   dualLine = false,
+  className,
 }: {
   label: string;
   primary: string;
   secondary?: string;
   /** When true, secondary is as prominent as primary (for USD + local pairs). */
   dualLine?: boolean;
+  className?: string;
 }) {
   return (
-    <div className="flex flex-col rounded-xl border border-white/10 bg-neutral-900/50 px-3 py-2.5">
+    <div
+      className={`flex flex-col rounded-xl border border-white/10 bg-neutral-900/50 px-3 py-2.5 ${className ?? ""}`}
+    >
       <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-neutral-500">
         {label}
       </span>
