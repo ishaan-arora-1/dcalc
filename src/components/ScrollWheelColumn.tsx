@@ -171,7 +171,7 @@ export function ScrollWheelColumn({
 /** % off/on list — half-point steps, trade-friendly range. */
 export function buildDiscountWheelOptions(): WheelOption[] {
   const out: WheelOption[] = [];
-  for (let n = -65; n <= 20; n += 0.5) {
+  for (let n = -100; n <= 20; n += 0.5) {
     const label = `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
     out.push({ value: n.toFixed(1), label });
   }
