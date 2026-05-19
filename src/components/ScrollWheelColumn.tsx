@@ -178,6 +178,23 @@ export function buildDiscountWheelOptions(): WheelOption[] {
   return out;
 }
 
+export const PCT_MIN = -100;
+export const PCT_MAX = 20;
+
+/** Clamp and format a typed discount; returns fallback if not a number. */
+export function normalizePctInput(
+  raw: string,
+  fallback = "-30.0",
+): string {
+  const cleaned = raw.replace(/%/g, "").trim();
+  if (!cleaned || cleaned === "+" || cleaned === "-") return fallback;
+  const t = parseFloat(cleaned);
+  if (!Number.isFinite(t)) return fallback;
+  const clamped = Math.max(PCT_MIN, Math.min(PCT_MAX, t));
+  const rounded = Math.round(clamped * 10) / 10;
+  return rounded.toFixed(1);
+}
+
 /** Snap an arbitrary pct string to the nearest wheel step (for legacy state). */
 export function nearestWheelPct(pctStr: string, options: WheelOption[]): string {
   const t = parseFloat(pctStr);

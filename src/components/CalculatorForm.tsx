@@ -28,6 +28,7 @@ import {
   CaratWheelSlot,
   buildDiscountWheelOptions,
   nearestWheelPct,
+  normalizePctInput,
   type WheelOption,
 } from "@/components/ScrollWheelColumn";
 
@@ -221,10 +222,27 @@ export function CalculatorForm({ initial }: Props) {
           <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-rose-200/90">
             Disc.
           </span>
-          <span className="mt-1 text-[18px] font-bold tabular-nums text-rose-300">
-            {pct >= 0 ? "+" : ""}
-            {pct.toFixed(2)}%
-          </span>
+          <div className="mt-1 flex min-w-0 items-baseline gap-0.5">
+            <input
+              type="text"
+              inputMode="decimal"
+              autoComplete="off"
+              aria-label="Discount percent off or on list"
+              value={state.pct}
+              onChange={(e) => set("pct", e.target.value)}
+              onBlur={() =>
+                setState((s) => ({
+                  ...s,
+                  pct: normalizePctInput(s.pct),
+                }))
+              }
+              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-[18px] font-bold tabular-nums text-rose-300 placeholder:text-rose-300/40 focus:outline-none focus:ring-0"
+              placeholder="-30.0"
+            />
+            <span className="shrink-0 text-[18px] font-bold tabular-nums text-rose-300">
+              %
+            </span>
+          </div>
         </div>
         <PriceCell
           label="Price / ct."
